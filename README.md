@@ -1,6 +1,9 @@
 # Azure-NotificationHub
 
-Azure Notification Hub Helper
+Azure Notification Hub Helper [available on nuget.org](https://www.nuget.org/packages/Azure-NotificationHub/)
+
+##Installation
+```PM> Install-Package Azure-NotificationHub```
 
 ##Usage
 ```var instance = AzureNotificationHub.Instance("endpoint", "hubName");```
