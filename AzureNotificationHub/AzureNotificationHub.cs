@@ -1,55 +1,52 @@
-﻿using Microsoft.ServiceBus.Messaging;
-using Microsoft.ServiceBus.Notifications;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
+using Microsoft.ServiceBus.Messaging;
+using Microsoft.ServiceBus.Notifications;
 
 namespace AzureNotificationHub
 {
     public class AzureNotificationHub
     {
-        private static AzureNotificationHub instance;
-        private NotificationHubClient hub;
+        private static AzureNotificationHub _instance;
+        private readonly NotificationHubClient _hub;
+
         public static AzureNotificationHub Instance(string endPoint, string hubName)
         {
-            if (instance == null)
-                instance = new AzureNotificationHub(endPoint, hubName);
-            return instance;
+            return _instance ?? (_instance = new AzureNotificationHub(endPoint, hubName));
         }
 
-        
+
         public AzureNotificationHub(string endPoint, string hubName)
         {
-            hub = NotificationHubClient.CreateClientFromConnectionString(endPoint, hubName);
+            _hub = NotificationHubClient.CreateClientFromConnectionString(endPoint, hubName);
         }
 
         public async Task<NotificationOutcome> Send(string data, string tag)
         {
-            return await hub.SendAppleNativeNotificationAsync(data, tag);
+            return await _hub.SendAppleNativeNotificationAsync(data, tag);
         }
 
         public async Task<NotificationOutcome> SendBroadcast(string data)
         {
-            return await hub.SendAppleNativeNotificationAsync(data);
+            return await _hub.SendAppleNativeNotificationAsync(data);
         }
 
-        public async Task DeleteRegistrationByDeviceId(string Handle)
+        public async Task DeleteRegistrationByDeviceId(string handle)
         {
-            await hub.DeleteRegistrationsByChannelAsync(Handle);
+            await _hub.DeleteRegistrationsByChannelAsync(handle);
         }
 
         public async Task<string> GetRegistrationId()
         {
-            return await hub.CreateRegistrationIdAsync();
+            return await _hub.CreateRegistrationIdAsync();
         }
 
         public async Task CreateOrUpdateRegistration(string id, DeviceRegistration deviceRegistration)
         {
-            RegistrationDescription registration = null;
+            RegistrationDescription registration;
             switch (deviceRegistration.Platform)
             {
                 case "mpns":
@@ -73,7 +70,7 @@ namespace AzureNotificationHub
 
             try
             {
-                await hub.CreateOrUpdateRegistrationAsync(registration);
+                await _hub.CreateOrUpdateRegistrationAsync(registration);
             }
             catch (MessagingException e)
             {
@@ -84,13 +81,12 @@ namespace AzureNotificationHub
         private static void ReturnGoneIfHubResponseIsGone(MessagingException e)
         {
             var webex = e.InnerException as WebException;
-            if (webex.Status == WebExceptionStatus.ProtocolError)
+            if (webex != null && webex.Status == WebExceptionStatus.ProtocolError)
             {
-                var response = (HttpWebResponse)webex.Response;
+                var response = (HttpWebResponse) webex.Response;
                 if (response.StatusCode == HttpStatusCode.Gone)
                     throw new HttpRequestException(HttpStatusCode.Gone.ToString());
             }
         }
-
     }
 }

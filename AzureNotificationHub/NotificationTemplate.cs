@@ -1,10 +1,8 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace AzureNotificationHub
 {
@@ -22,10 +20,7 @@ namespace AzureNotificationHub
                 pushBody.Add(new JProperty("badge", badge));
             if (data != null)
             {
-                foreach (var item in data)
-                {
-                    optionalFields.Add(new JProperty(item.Key, item.Value));
-                }
+                optionalFields.AddRange(data.Select(item => new JProperty(item.Key, item.Value)));
                 pushBody.Add(optionalFields);
             }
 
