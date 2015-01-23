@@ -1,5 +1,7 @@
 # Azure-NotificationHub
 
+[![Build Status](https://travis-ci.org/movielala/Azure-NotificationHub.svg)](https://travis-ci.org/movielala/Azure-NotificationHub)
+
 Azure Notification Hub Helper [available on nuget.org](https://www.nuget.org/packages/Azure-NotificationHub/)
 
 ##Installation
